@@ -1,3 +1,7 @@
+# github page: https://abcolony.github.io/
+# github repository: https://github.com/abcolony/ABCPython
+
+
 import datetime
 import sys
 import time
