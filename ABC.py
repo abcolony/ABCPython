@@ -2,162 +2,145 @@ __author__ = "Omur Sahin"
 
 import sys
 import numpy as np
-from deap.benchmarks import *
+from deap.benchmarks import random
 import progressbar
+
 
 class ABC:
 
-    def __init__(_self, conf):
-        _self.conf = conf
-        _self.foods = np.zeros((_self.conf.FOOD_NUMBER, _self.conf.DIMENSION))
-        _self.f = np.ones((_self.conf.FOOD_NUMBER))
-        _self.fitness = np.ones((_self.conf.FOOD_NUMBER)) * np.iinfo(int).max
-        _self.trial = np.zeros((_self.conf.FOOD_NUMBER))
-        _self.prob = [0 for x in range(_self.conf.FOOD_NUMBER)]
-        _self.solution = np.zeros((_self.conf.DIMENSION))
-        _self.globalParams = [0 for x in range(_self.conf.DIMENSION)]
-        _self.globalTime = 0
-        _self.evalCount = 0
-        _self.cycle = 0
-        _self.experimentID = 0
-        _self.globalOpts = list()
+    def __init__(self, conf):
+        self.conf = conf
+        self.foods = np.zeros((self.conf.FOOD_NUMBER, self.conf.DIMENSION))
+        self.f = np.ones(self.conf.FOOD_NUMBER)
+        self.fitness = np.ones(self.conf.FOOD_NUMBER) * np.iinfo(int).max
+        self.trial = np.zeros(self.conf.FOOD_NUMBER)
+        self.prob = [0 for x in range(self.conf.FOOD_NUMBER)]
+        self.solution = np.zeros(self.conf.DIMENSION)
+        self.globalParams = [0 for x in range(self.conf.DIMENSION)]
+        self.globalTime = 0
+        self.evalCount = 0
+        self.cycle = 0
+        self.experimentID = 0
+        self.globalOpts = list()
+        self.globalOpt = np.iinfo(int).max
 
-        if (_self.conf.SHOW_PROGRESS):
-            _self.progressbar = progressbar.ProgressBar(max_value=_self.conf.MAXIMUM_EVALUATION)
-        if (not(conf.RANDOM_SEED)):
+        if self.conf.SHOW_PROGRESS:
+            self.progressbar = progressbar.ProgressBar(max_value=self.conf.MAXIMUM_EVALUATION)
+        if not (conf.RANDOM_SEED):
             random.seed(conf.SEED)
 
-    def calculate_function(_self, sol):
+    def calculate_function(self, sol):
         try:
-            if (_self.conf.SHOW_PROGRESS):
-                _self.progressbar.update(_self.evalCount)
-            return _self.conf.OBJECTIVE_FUNCTION(sol)
+            if self.conf.SHOW_PROGRESS:
+                self.progressbar.update(self.evalCount)
+            return self.conf.OBJECTIVE_FUNCTION(sol)
 
         except ValueError as err:
             print(
                 "An exception occured: Upper and Lower Bounds might be wrong. (" + str(err) + " in calculate_function)")
             sys.exit()
 
-    def calculate_fitness(_self, fun):
-        _self.increase_eval()
+    def calculate_fitness(self, fun):
+        self.increase_eval()
         if fun >= 0:
             result = 1 / (fun + 1)
         else:
             result = 1 + abs(fun)
         return result
 
-    def increase_eval(_self):
-        _self.evalCount += 1
+    def increase_eval(self):
+        self.evalCount += 1
 
-    def stopping_condition(_self):
-        status = bool(_self.evalCount >= _self.conf.MAXIMUM_EVALUATION)
-        if(_self.conf.SHOW_PROGRESS):
-          if(status == True and not( _self.progressbar._finished )):
-               _self.progressbar.finish()
+    def stopping_condition(self):
+        status = bool(self.evalCount >= self.conf.MAXIMUM_EVALUATION)
+        if self.conf.SHOW_PROGRESS:
+            if status is True and not self.progressbar._finished:
+                self.progressbar.finish()
         return status
 
-    def memorize_best_source(_self):
-        for i in range(_self.conf.FOOD_NUMBER):
-            if (_self.f[i] < _self.globalOpt and _self.conf.MINIMIZE == True) or (_self.f[i] >= _self.globalOpt and _self.conf.MINIMIZE == False):
-                _self.globalOpt = np.copy(_self.f[i])
-                _self.globalParams = np.copy(_self.foods[i][:])
+    def memorize_best_source(self):
+        for i in range(self.conf.FOOD_NUMBER):
+            if self.f[i] < self.globalOpt:
+                self.globalOpt = np.copy(self.f[i])
+                self.globalParams = np.copy(self.foods[i][:])
 
-    def init(_self, index):
-        if (not (_self.stopping_condition())):
-            for i in range(_self.conf.DIMENSION):
-                _self.foods[index][i] = random.random() * (_self.conf.UPPER_BOUND - _self.conf.LOWER_BOUND) + _self.conf.LOWER_BOUND
-            _self.solution = np.copy(_self.foods[index][:])
-            _self.f[index] = _self.calculate_function(_self.solution)[0]
-            _self.fitness[index] = _self.calculate_fitness(_self.f[index])
-            _self.trial[index] = 0
+    def init(self, index):
+        if not (self.stopping_condition()):
+            for i in range(self.conf.DIMENSION):
+                self.foods[index][i] = random.random() * (self.conf.UPPER_BOUND - self.conf.LOWER_BOUND) + self.conf.LOWER_BOUND
+            self.solution = np.copy(self.foods[index][:])
+            self.f[index] = self.calculate_function(self.solution)[0]
+            self.fitness[index] = self.calculate_fitness(self.f[index])
+            self.trial[index] = 0
 
-    def initial(_self):
-        for i in range(_self.conf.FOOD_NUMBER):
-            _self.init(i)
-        _self.globalOpt = np.copy(_self.f[0])
-        _self.globalParams = np.copy(_self.foods[0][:])
+    def initial(self):
+        for i in range(self.conf.FOOD_NUMBER):
+            self.init(i)
+        self.globalOpt = np.copy(self.f[0])
+        self.globalParams = np.copy(self.foods[0][:])
 
-    def send_employed_bees(_self):
+    def calculate_neighbour_solution(self, change_index):
+        param2change = random.randint(0, self.conf.DIMENSION - 1)
+        neighbour = random.randint(0, self.conf.FOOD_NUMBER - 1)
+        while neighbour == change_index:
+            neighbour = random.randint(0, self.conf.FOOD_NUMBER - 1)
+
+        solution = np.copy(self.foods[change_index][:])
+        r = random.random()
+        solution[param2change] = round(self.foods[change_index][param2change] + (self.foods[change_index][param2change] - self.foods[neighbour][param2change]) * (r - 0.5) * 2)
+        if solution[param2change] < self.conf.LOWER_BOUND:
+            solution[param2change] = self.conf.LOWER_BOUND
+        if solution[param2change] > self.conf.UPPER_BOUND:
+            solution[param2change] = self.conf.UPPER_BOUND
+        return solution
+
+    def send_employed_bees(self):
         i = 0
-        while (i < _self.conf.FOOD_NUMBER) and (not (_self.stopping_condition())):
-            r = random.random()
-            _self.param2change = (int)(r * _self.conf.DIMENSION)
+        while (i < self.conf.FOOD_NUMBER) and (not (self.stopping_condition())):
+            solution = self.calculate_neighbour_solution(i)
 
-            r = random.random()
-            _self.neighbour = (int)(r * _self.conf.FOOD_NUMBER)
-            while _self.neighbour == i:
-                r = random.random()
-                _self.neighbour = (int)(r * _self.conf.FOOD_NUMBER)
-            _self.solution = np.copy(_self.foods[i][:])
-
-            r = random.random()
-            _self.solution[_self.param2change] = _self.foods[i][_self.param2change] + (
-                        _self.foods[i][_self.param2change] - _self.foods[_self.neighbour][_self.param2change]) * (
-                                                             r - 0.5) * 2
-
-            if _self.solution[_self.param2change] < _self.conf.LOWER_BOUND:
-                _self.solution[_self.param2change] = _self.conf.LOWER_BOUND
-            if _self.solution[_self.param2change] > _self.conf.UPPER_BOUND:
-                _self.solution[_self.param2change] = _self.conf.UPPER_BOUND
-            _self.ObjValSol = _self.calculate_function(_self.solution)[0]
-            _self.FitnessSol = _self.calculate_fitness(_self.ObjValSol)
-            if (_self.FitnessSol > _self.fitness[i] and _self.conf.MINIMIZE == True) or (_self.FitnessSol <= _self.fitness[i] and _self.conf.MINIMIZE == False):
-                _self.trial[i] = 0
-                _self.foods[i][:] = np.copy(_self.solution)
-                _self.f[i] = _self.ObjValSol
-                _self.fitness[i] = _self.FitnessSol
+            obj_val = self.calculate_function(solution)[0]
+            fitness_sol = self.calculate_fitness(obj_val)
+            if fitness_sol > self.fitness[i]:
+                self.trial[i] = 0
+                self.foods[i][:] = np.copy(solution)
+                self.f[i] = obj_val
+                self.fitness[i] = fitness_sol
             else:
-                _self.trial[i] = _self.trial[i] + 1
+                self.trial[i] = self.trial[i] + 1
             i += 1
 
-    def calculate_probabilities(_self):
-        maxfit = np.copy(max(_self.fitness))
-        for i in range(_self.conf.FOOD_NUMBER):
-            _self.prob[i] = (0.9 * (_self.fitness[i] / maxfit)) + 0.1
+    def calculate_probabilities(self):
+        max_fit = np.copy(max(self.fitness))
+        for i in range(self.conf.FOOD_NUMBER):
+            self.prob[i] = (0.9 * (self.fitness[i] / max_fit)) + 0.1
 
-    def send_onlooker_bees(_self):
+    def send_onlooker_bees(self):
         i = 0
         t = 0
-        while (t < _self.conf.FOOD_NUMBER) and (not (_self.stopping_condition())):
+        while (t < self.conf.FOOD_NUMBER) and (not (self.stopping_condition())):
             r = random.random()
-            if ((r < _self.prob[i] and _self.conf.MINIMIZE == True) or (r > _self.prob[i] and _self.conf.MINIMIZE == False)):
-                t+=1
-                r = random.random()
-                _self.param2change = (int)(r * _self.conf.DIMENSION)
-                r = random.random()
-                _self.neighbour = (int)(r * _self.conf.FOOD_NUMBER)
-                while _self.neighbour == i:
-                    r = random.random()
-                    _self.neighbour = (int)(r * _self.conf.FOOD_NUMBER)
-                _self.solution = np.copy(_self.foods[i][:])
-
-                r = random.random()
-                _self.solution[_self.param2change] = _self.foods[i][_self.param2change] + (
-                            _self.foods[i][_self.param2change] - _self.foods[_self.neighbour][_self.param2change]) * (
-                                                                 r - 0.5) * 2
-                if _self.solution[_self.param2change] < _self.conf.LOWER_BOUND:
-                    _self.solution[_self.param2change] = _self.conf.LOWER_BOUND
-                if _self.solution[_self.param2change] > _self.conf.UPPER_BOUND:
-                    _self.solution[_self.param2change] = _self.conf.UPPER_BOUND
-
-                _self.ObjValSol = _self.calculate_function(_self.solution)[0]
-                _self.FitnessSol = _self.calculate_fitness(_self.ObjValSol)
-                if (_self.FitnessSol > _self.fitness[i] and _self.conf.MINIMIZE == True) or (_self.FitnessSol <= _self.fitness[i] and _self.conf.MINIMIZE == False):
-                    _self.trial[i] = 0
-                    _self.foods[i][:] = np.copy(_self.solution)
-                    _self.f[i] = _self.ObjValSol
-                    _self.fitness[i] = _self.FitnessSol
+            if r < self.prob[i]:
+                t += 1
+                solution = self.calculate_neighbour_solution(i)
+                obj_val = self.calculate_function(solution)[0]
+                fitness_sol = self.calculate_fitness(obj_val)
+                if fitness_sol > self.fitness[i]:
+                    self.trial[i] = 0
+                    self.foods[i][:] = np.copy(solution)
+                    self.f[i] = obj_val
+                    self.fitness[i] = fitness_sol
                 else:
-                    _self.trial[i] = _self.trial[i] + 1
-            i += 1
-            i = i % _self.conf.FOOD_NUMBER
+                    self.trial[i] = self.trial[i] + 1
+            i = (i + 1) % self.conf.FOOD_NUMBER
 
-    def send_scout_bees(_self):
-        if np.amax(_self.trial) >= _self.conf.LIMIT:
-            _self.init(_self.trial.argmax(axis = 0))
+    def send_scout_bees(self):
+        if np.amax(self.trial) >= self.conf.LIMIT:
+            self.init(self.trial.argmax(axis=0))
 
-    def increase_cycle(_self):
-        _self.globalOpts.append(_self.globalOpt)
-        _self.cycle += 1
-    def setExperimentID(_self,run,t):
-        _self.experimentID = t+"-"+str(run)
+    def increase_cycle(self):
+        self.globalOpts.append(self.globalOpt)
+        self.cycle += 1
+
+    def setExperimentID(self, run, t):
+        self.experimentID = t + "-" + str(run)
