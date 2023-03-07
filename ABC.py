@@ -67,7 +67,8 @@ class ABC:
     def init(self, index):
         if not (self.stopping_condition()):
             for i in range(self.conf.DIMENSION):
-                self.foods[index][i] = random.random() * (self.conf.UPPER_BOUND - self.conf.LOWER_BOUND) + self.conf.LOWER_BOUND
+                self.foods[index][i] = random.random() * (
+                            self.conf.UPPER_BOUND - self.conf.LOWER_BOUND) + self.conf.LOWER_BOUND
             self.solution = np.copy(self.foods[index][:])
             self.f[index] = self.calculate_function(self.solution)[0]
             self.fitness[index] = self.calculate_fitness(self.f[index])
@@ -87,7 +88,8 @@ class ABC:
 
         solution = np.copy(self.foods[change_index][:])
         r = random.random()
-        solution[param2change] = round(self.foods[change_index][param2change] + (self.foods[change_index][param2change] - self.foods[neighbour][param2change]) * (r - 0.5) * 2)
+        solution[param2change] = round(self.foods[change_index][param2change] + (
+                    self.foods[change_index][param2change] - self.foods[neighbour][param2change]) * (r - 0.5) * 2)
         if solution[param2change] < self.conf.LOWER_BOUND:
             solution[param2change] = self.conf.LOWER_BOUND
         if solution[param2change] > self.conf.UPPER_BOUND:
@@ -142,5 +144,5 @@ class ABC:
         self.globalOpts.append(self.globalOpt)
         self.cycle += 1
 
-    def setExperimentID(self, run, t):
+    def set_experiment_id(self, run, t):
         self.experimentID = t + "-" + str(run)

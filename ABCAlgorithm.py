@@ -1,7 +1,6 @@
 # github page: https://abcolony.github.io/
 # github repository: https://github.com/abcolony/ABCPython
 
-
 import datetime
 import sys
 import time
@@ -14,11 +13,11 @@ def main(argv):
 
     abc_conf = Config.Config(argv)
     abc_list = list()
-    expT = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(" ", "").replace(":", "")
+    experiment_name = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S").replace(" ", "").replace(":", "")
     for run in range(abc_conf.RUN_TIME):
 
         abc = ABC.ABC(abc_conf)
-        abc.setExperimentID(run, expT)
+        abc.set_experiment_id(run, experiment_name)
         start_time = time.time() * 1000
         abc.initial()
         abc.memorize_best_source()

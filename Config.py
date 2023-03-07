@@ -1,5 +1,3 @@
-
-
 import sys
 import getopt
 import configparser
@@ -9,30 +7,30 @@ import os
 
 class Config:
 
-    def __init__(_self, argv):
+    def __init__(self, argv):
         config = configparser.ConfigParser()
         config.read(os.path.dirname(os.path.abspath(__file__)) + '/ABC.ini')
         # ####SETTINGS FILE######
-        _self.OBJECTIVE_FUNCTION = _self.objFunctionSelector.get(config['DEFAULT']['ObjectiveFunction'], "Error")
-        _self.NUMBER_OF_POPULATION = int(config['DEFAULT']['NumberOfPopulation'])
-        _self.MAXIMUM_EVALUATION = int(config['DEFAULT']['MaximumEvaluation'])
-        _self.LIMIT = int(config['DEFAULT']['Limit'])
-        _self.FOOD_NUMBER = int(_self.NUMBER_OF_POPULATION / 2)
-        _self.DIMENSION = int(config['DEFAULT']['Dimension'])
-        _self.UPPER_BOUND = float(config['DEFAULT']['UpperBound'])
-        _self.LOWER_BOUND = float(config['DEFAULT']['LowerBound'])
-        _self.RUN_TIME = int(config['DEFAULT']['RunTime'])
-        _self.SHOW_PROGRESS = bool(config['REPORT']['ShowProgress'] == 'True')
-        _self.PRINT_PARAMETERS = bool(config['REPORT']['PrintParameters'] == 'True')
-        _self.RUN_INFO = bool(config['REPORT']['RunInfo'] == 'True')
-        _self.RUN_INFO_COMMANDLINE = bool(config['REPORT']['CommandLine'] == 'True')
-        _self.SAVE_RESULTS = bool(config['REPORT']['SaveResults'] == 'True')
-        _self.RESULT_REPORT_FILE_NAME = config['REPORT']['ResultReportFileName']
-        _self.PARAMETER_REPORT_FILE_NAME = config['REPORT']['ParameterReportFileName']
-        _self.RESULT_BY_CYCLE_FOLDER = config['REPORT']['ResultByCycleFolder']
-        _self.OUTPUTS_FOLDER_NAME = str(config['REPORT']['OutputsFolderName'])
-        _self.RANDOM_SEED = config['SEED']['RandomSeed'] == 'True'
-        _self.SEED = int(config['SEED']['Seed'])
+        self.OBJECTIVE_FUNCTION = self.objFunctionSelector.get(config['DEFAULT']['ObjectiveFunction'], "Error")
+        self.NUMBER_OF_POPULATION = int(config['DEFAULT']['NumberOfPopulation'])
+        self.MAXIMUM_EVALUATION = int(config['DEFAULT']['MaximumEvaluation'])
+        self.LIMIT = int(config['DEFAULT']['Limit'])
+        self.FOOD_NUMBER = int(self.NUMBER_OF_POPULATION / 2)
+        self.DIMENSION = int(config['DEFAULT']['Dimension'])
+        self.UPPER_BOUND = float(config['DEFAULT']['UpperBound'])
+        self.LOWER_BOUND = float(config['DEFAULT']['LowerBound'])
+        self.RUN_TIME = int(config['DEFAULT']['RunTime'])
+        self.SHOW_PROGRESS = bool(config['REPORT']['ShowProgress'] == 'True')
+        self.PRINT_PARAMETERS = bool(config['REPORT']['PrintParameters'] == 'True')
+        self.RUN_INFO = bool(config['REPORT']['RunInfo'] == 'True')
+        self.RUN_INFO_COMMANDLINE = bool(config['REPORT']['CommandLine'] == 'True')
+        self.SAVE_RESULTS = bool(config['REPORT']['SaveResults'] == 'True')
+        self.RESULT_REPORT_FILE_NAME = config['REPORT']['ResultReportFileName']
+        self.PARAMETER_REPORT_FILE_NAME = config['REPORT']['ParameterReportFileName']
+        self.RESULT_BY_CYCLE_FOLDER = config['REPORT']['ResultByCycleFolder']
+        self.OUTPUTS_FOLDER_NAME = str(config['REPORT']['OutputsFolderName'])
+        self.RANDOM_SEED = config['SEED']['RandomSeed'] == 'True'
+        self.SEED = int(config['SEED']['Seed'])
         # ####SETTINGS FILE######
 
         # ####SETTINGS ARGUMENTS######
@@ -62,32 +60,32 @@ class Config:
 
                 sys.exit()
             elif opt in ('-n', '--np'):
-                _self.NUMBER_OF_POPULATION = int(arg)
+                self.NUMBER_OF_POPULATION = int(arg)
             elif opt in ('-m', '--max_eval'):
-                _self.MAXIMUM_EVALUATION = int(arg)
+                self.MAXIMUM_EVALUATION = int(arg)
             elif opt in ('-d', '--dim'):
-                _self.DIMENSION = int(arg)
+                self.DIMENSION = int(arg)
             elif opt in ('-t', '--trial'):
-                _self.LIMIT = int(arg)
+                self.LIMIT = int(arg)
             elif opt in ('-l', '--lower_bound'):
-                _self.LOWER_BOUND = float(arg)
+                self.LOWER_BOUND = float(arg)
             elif opt in ('-u', '--upper_bound'):
-                _self.UPPER_BOUND = float(arg)
+                self.UPPER_BOUND = float(arg)
             elif opt in ('-r', '--runtime'):
-                _self.RUN_TIME = int(arg)
+                self.RUN_TIME = int(arg)
             elif opt in ('-o', '--obj_fun'):
-                _self.OBJECTIVE_FUNCTION = _self.objFunctionSelector.get(arg, "sphere")
+                self.OBJECTIVE_FUNCTION = self.objFunctionSelector.get(arg, "sphere")
             elif opt in ('--output_folder'):
-                _self.OUTPUTS_FOLDER_NAME = arg
+                self.OUTPUTS_FOLDER_NAME = arg
             elif opt in ('--param_name'):
-                _self.PARAMETER_REPORT_FILE_NAME = arg
+                self.PARAMETER_REPORT_FILE_NAME = arg
             elif opt in ('--file_name'):
-                _self.RESULT_REPORT_FILE_NAME = arg
+                self.RESULT_REPORT_FILE_NAME = arg
             elif opt in ('--res_cycle_folder'):
-                _self.RESULT_BY_CYCLE_FOLDER = arg
+                self.RESULT_BY_CYCLE_FOLDER = arg
             elif opt in ('--show_functions'):
                 print("We use deap.benchmarks functions. Available functions are listed below:")
-                for i in _self.objFunctionSelector:
+                for i in self.objFunctionSelector:
                     print(i)
                 sys.exit()
         # ####SETTINGS ARGUMENTS######
